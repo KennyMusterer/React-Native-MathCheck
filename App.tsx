@@ -1,27 +1,65 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, TextInput, Touchable, TouchableOpacity, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons'
+import { useRef, useState } from 'react';
 
 export default function App() {
+
+  const textfield = useRef<TextInput>(null);
+
+  const getRandomInt = (min: number, max: number) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  const operands = ['+', '-', '*', '/'];
+
+  const [mathData, setMathData] = useState({
+    first: getRandomInt(0, 15),
+    second: getRandomInt(1, 15),
+    operand: operands[getRandomInt(0, 3)]
+  });
+
+  const [resultData, setResultData] = useState('');
+
+  const [userInput, setUserInput] = useState('');
+
+  const updateTextfield = (uinput: string) => setUserInput(uinput);
+
+  const newTask = () => {
+    setResultData('');
+    setMathData({
+      first: getRandomInt(0, 15),
+      second: getRandomInt(1, 15),
+      operand: operands[getRandomInt(0, 3)]
+    });
+  }
+
+  const evaluateUserInput = () =>{
+    let correctResult = eval(mathData.first + mathData.operand + mathData.second);
+
+    setResultData(correctResult == Number(userInput) ? 'Richtig' : 'Falsch');
+    textfield.current?.clear();
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.tasktext}>Berechne die Aufgabe:</Text>
         <View style={styles.task}>
-          <Text style={styles.number}>0</Text>
-          <Text style={styles.operand}>*</Text>
-          <Text style={styles.number}>0</Text>
+          <Text style={styles.number}>{mathData.first}</Text>
+          <Text style={styles.operand}>{mathData.operand}</Text>
+          <Text style={styles.number}>{mathData.second}</Text>
         </View>
       </View>
       <View style={styles.resultWrapper}>
-        <Text style={styles.resultText}>Richtig</Text>
-        <TouchableOpacity style={styles.nextTaskButton}>
+        <Text style={styles.resultText}>{resultData}</Text>
+        <TouchableOpacity style={styles.nextTaskButton} onPress={newTask}>
           <Text style={styles.nextTaskButtonText}>Neue Aufgabe</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.inputWrapper}>
-        <TextInput style={styles.uinput}></TextInput>
-        <TouchableOpacity>
+        <TextInput style={styles.uinput} onChangeText={updateTextfield} ref={textfield} keyboardType='numeric'></TextInput>
+        <TouchableOpacity onPress={evaluateUserInput}>
           <Ionicons name="md-arrow-forward-circle" size={40} color="#ffb703"></Ionicons>
         </TouchableOpacity>
       </View>
